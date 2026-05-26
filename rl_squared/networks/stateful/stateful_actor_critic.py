@@ -1,7 +1,7 @@
 from typing import Tuple
 
 import torch
-import gym
+import gymnasium as gym
 
 from rl_squared.networks.base_actor_critic import BaseActorCritic
 from rl_squared.networks.stateful.stateful_actor import StatefulActor

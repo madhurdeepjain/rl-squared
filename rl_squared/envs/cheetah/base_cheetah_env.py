@@ -1,9 +1,9 @@
 from typing import Tuple, Any
 from abc import ABC
 
-import gym
+import gymnasium as gym
 
-from gym.envs.mujoco import HalfCheetahEnv as HalfCheetahEnv_
+from gymnasium.envs.mujoco.half_cheetah_v5 import HalfCheetahEnv as HalfCheetahEnv_
 from rl_squared.envs.base_mujoco_meta_env import BaseMujocoMetaEnv
 
 
@@ -72,27 +72,7 @@ class BaseCheetahEnv(HalfCheetahEnv_, BaseMujocoMetaEnv, ABC):
         Returns:
             None
         """
-        camera_id = self.model.camera_name2id("track")
-        self.viewer.cam.type = 2
-        self.viewer.cam.fixedcamid = camera_id
-        self.viewer.cam.distance = self.model.stat.extent * 0.35
-        self.viewer._hide_overlay = True
+        pass
 
-    def render(self, mode: str = "none"):
-        """
-        Render the enevironment.
-
-        Args:
-            mode (str): Mode in which to render the environment.
-
-        Returns:
-            None
-        """
-        if mode == "rgb_array":
-            self._get_viewer().render()
-            # window size used for old mujoco-py:
-            width, height = 500, 500
-            data = self._get_viewer().read_pixels(width, height, depth=False)
-            return data
-        elif mode == "human":
-            self._get_viewer().render()
+    def render(self):
+        return super().render()

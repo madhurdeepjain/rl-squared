@@ -3,7 +3,7 @@ from typing import Callable, List
 import numpy as np
 import torch
 from torch import nn as nn
-from torch.nn.utils import weight_norm
+from torch.nn.utils.parametrizations import weight_norm
 
 
 def init_gru(input_size: int, recurrent_state_size: int) -> nn.Module:

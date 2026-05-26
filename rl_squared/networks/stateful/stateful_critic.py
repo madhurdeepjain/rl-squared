@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn as nn
 import torch
 
-import gym
+import gymnasium as gym
 
 from rl_squared.networks.base_critic import BaseCritic
 

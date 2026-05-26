@@ -1,5 +1,5 @@
 import torch
-import gym
+import gymnasium as gym
 
 
 class MetaEpisodeBatch:

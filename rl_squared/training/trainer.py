@@ -2,6 +2,7 @@ import os
 
 import torch
 import wandb
+from tqdm import tqdm
 
 import rl_squared.utils.logging_utils as logging_utils
 from rl_squared.training.experiment_config import ExperimentConfig
@@ -110,11 +111,17 @@ class Trainer:
             ppo.optimizer.load_state_dict(checkpoint["optimizer"])
             pass
 
-        for j in range(current_iteration, self.config.policy_iterations):
+        progress = tqdm(
+            range(current_iteration, self.config.policy_iterations),
+            desc=self.config.env_name,
+            unit="iter",
+            dynamic_ncols=True,
+        )
+
+        for j in progress:
             # anneal
             if self.config.use_linear_lr_decay:
                 ppo.anneal_learning_rates(j, self.config.policy_iterations)
-                pass
 
             # sample
             meta_episode_batches, meta_train_reward_per_step = sample_meta_episodes(
@@ -131,6 +138,7 @@ class Trainer:
             minibatch_sampler = MetaBatchSampler(meta_episode_batches, self.device)
             ppo_update = ppo.update(minibatch_sampler)
 
+            mean_reward = meta_train_reward_per_step * self.config.meta_episode_length
             wandb_logs = {
                 "meta_train/mean_policy_loss": ppo_update.policy_loss,
                 "meta_train/mean_value_loss": ppo_update.value_loss,
@@ -138,9 +146,16 @@ class Trainer:
                 "meta_train/approx_kl": ppo_update.approx_kl,
                 "meta_train/clip_fraction": ppo_update.clip_fraction,
                 "meta_train/explained_variance": ppo_update.explained_variance,
-                "meta_train/mean_meta_episode_reward": meta_train_reward_per_step
-                * self.config.meta_episode_length,
+                "meta_train/mean_meta_episode_reward": mean_reward,
             }
+
+            progress.set_postfix(
+                reward=f"{mean_reward:.3f}",
+                pi_loss=f"{ppo_update.policy_loss:.3f}",
+                v_loss=f"{ppo_update.value_loss:.3f}",
+                entropy=f"{ppo_update.entropy:.3f}",
+                kl=f"{ppo_update.approx_kl:.4f}",
+            )
 
             # save
             is_last_iteration = j == (self.config.policy_iterations - 1)
@@ -155,7 +170,6 @@ class Trainer:
                     critic=actor_critic.critic,
                     optimizer=ppo.optimizer,
                 )
-                pass
 
             if enable_wandb:
                 wandb.log(wandb_logs)
@@ -163,7 +177,6 @@ class Trainer:
         # end
         if enable_wandb:
             wandb.finish()
-        pass
 
     @property
     def log_dir(self) -> str:
@@ -204,6 +217,11 @@ class Trainer:
             torch.backends.cudnn.benchmark = False
             torch.backends.cudnn.deterministic = True
 
-        self._device = torch.device("cuda:0" if use_cuda else "cpu")
+        if use_cuda:
+            self._device = torch.device(f"cuda:{self.config.cuda_device_id}")
+        elif self.config.use_cuda and torch.backends.mps.is_available():
+            self._device = torch.device("mps")
+        else:
+            self._device = torch.device("cpu")
 
         return self._device

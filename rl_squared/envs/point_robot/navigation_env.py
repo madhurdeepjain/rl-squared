@@ -1,9 +1,10 @@
 from typing import Tuple, Any, Optional
 import numpy as np
 
-import gym
-from gym import spaces
-from gym.utils import EzPickle, seeding
+import gymnasium as gym
+from gymnasium import spaces
+from gymnasium.utils import EzPickle
+from gymnasium.utils import seeding
 
 from rl_squared.envs.base_meta_env import BaseMetaEnv
 

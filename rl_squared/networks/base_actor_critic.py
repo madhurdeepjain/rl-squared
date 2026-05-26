@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 import torch
-import gym
+import gymnasium as gym
 
 from rl_squared.networks.base_actor import BaseActor
 from rl_squared.networks.base_critic import BaseCritic

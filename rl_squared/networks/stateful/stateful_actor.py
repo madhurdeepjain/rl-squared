@@ -1,5 +1,5 @@
 from typing import Tuple, Union, List
-import gym
+import gymnasium as gym
 
 import torch
 

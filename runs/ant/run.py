@@ -18,7 +18,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--run-all",
-        type=bool,
         default=False,
         action=argparse.BooleanOptionalAction,
         help="Whether to run all environments, if this is set then the environment parameter is ignored.",
@@ -41,7 +40,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--disable-wandb",
-        type=bool,
         default=False,
         action=argparse.BooleanOptionalAction,
         help=f"Whether to log the experiment to `wandb`.",
@@ -49,7 +47,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--prod",
-        type=bool,
         default=False,
         action=argparse.BooleanOptionalAction,
         help=f"Whether this a production run of the experiment.",

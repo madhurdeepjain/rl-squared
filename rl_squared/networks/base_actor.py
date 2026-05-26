@@ -1,7 +1,7 @@
 from typing import Union, Tuple
 from abc import ABC, abstractmethod
 
-import gym
+import gymnasium as gym
 import torch
 import torch.nn as nn
 

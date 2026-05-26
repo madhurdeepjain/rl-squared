@@ -1,7 +1,7 @@
 from typing import Tuple, Optional
 
 import numpy as np
-from gym.utils import EzPickle
+from gymnasium.utils import EzPickle
 
 from rl_squared.envs.ant.base_ant_env import BaseAntEnv
 
@@ -74,7 +74,7 @@ class AntTargetPositionEnv(BaseAntEnv, EzPickle):
         goal_reward = -np.sum(np.abs(current_position - self._target_position))
         ctrl_cost = 0.1 * np.square(action).sum()
         contact_cost = (
-            0.5 * 1e-3 * np.sum(np.square(np.clip(self.sim.data.cfrc_ext, -1, 1)))
+            0.5 * 1e-3 * np.sum(np.square(np.clip(self.data.cfrc_ext, -1, 1)))
         )
 
         survive_reward = 0.0

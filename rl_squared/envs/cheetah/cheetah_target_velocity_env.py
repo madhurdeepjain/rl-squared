@@ -2,8 +2,8 @@ from typing import Tuple, Optional
 
 import numpy as np
 
-import gym
-from gym.utils import EzPickle
+import gymnasium as gym
+from gymnasium.utils import EzPickle
 
 from rl_squared.envs.cheetah.base_cheetah_env import BaseCheetahEnv
 
@@ -81,9 +81,9 @@ class CheetahTargetVelocityEnv(BaseCheetahEnv, EzPickle):
         """
         self._elapsed_steps += 1
 
-        position_before = self.sim.data.qpos[0]
+        position_before = self.data.qpos[0]
         self.do_simulation(action, self.frame_skip)
-        position_after = self.sim.data.qpos[0]
+        position_after = self.data.qpos[0]
 
         forward_vel = (position_after - position_before) / self.dt
         forward_reward = -1.0 * abs(forward_vel - self._target_velocity.item())

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 
-import gym
+import gymnasium as gym
 
 
 class BaseCritic(ABC, nn.Module):

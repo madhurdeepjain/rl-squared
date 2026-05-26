@@ -4,8 +4,8 @@ from typing import Any, Callable, List, Optional, Sequence, Type, Union, Tuple
 
 import numpy as np
 
-import gym
-import gym.spaces as spaces
+import gymnasium as gym
+import gymnasium.spaces as spaces
 
 
 from stable_baselines3.common.vec_env.base_vec_env import (

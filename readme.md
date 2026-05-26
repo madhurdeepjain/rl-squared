@@ -58,3 +58,91 @@
 *Fast RL via Slow RL*
 - The paper suggests a different approach for designing better RL algorithms: instead of acting as the designers ourselves, learn the algorithm end-to-end using standard RL techniques.
 - The fast RL algorithm is a computation whose state is stored in the RNN activations, and the RNN's weights are learned by a general-purpose slow RL algorithm.
+
+---
+
+**Setup**
+
+Requires [uv](https://docs.astral.sh/uv/).
+
+```bash
+git clone https://github.com/bay3s/rl-squared
+cd rl-squared
+uv sync
+```
+
+Log in to WandB before running (skip with `--disable-wandb`):
+
+```bash
+uv run wandb login
+```
+
+---
+
+**Running Experiments**
+
+All scripts share these flags:
+
+| Flag | Default | Description |
+|---|---|---|
+| `--disable-wandb` | off | Skip WandB logging |
+| `--prod` | off | Log to `rl-squared`; omit for `rl-squared-dev` |
+| `--run-all` | off | Run every supported config for the experiment sequentially |
+| `--from-checkpoint PATH` | none | Resume from a saved `.pt` checkpoint (bandits excepted) |
+
+*Multi-Armed Bandits*
+
+```bash
+# --n: steps per trial {10, 100, 500}   --k: number of arms {5, 10, 50}
+uv run python runs/bandits/run.py --n 10  --k 5
+uv run python runs/bandits/run.py --n 10  --k 10
+uv run python runs/bandits/run.py --n 10  --k 50
+uv run python runs/bandits/run.py --n 100 --k 5
+uv run python runs/bandits/run.py --n 100 --k 10
+uv run python runs/bandits/run.py --n 100 --k 50
+uv run python runs/bandits/run.py --n 500 --k 5
+uv run python runs/bandits/run.py --n 500 --k 10
+uv run python runs/bandits/run.py --n 500 --k 50
+
+uv run python runs/bandits/run.py --run-all          # all 9 configs
+uv run python runs/bandits/run.py --n 10 --k 5 --disable-wandb
+```
+
+*Tabular MDPs*
+
+```bash
+# --n: episodes of interaction per MDP per trial {10, 25, 50, 100}
+uv run python runs/tabular_mdps/run.py --n 10
+uv run python runs/tabular_mdps/run.py --n 25
+uv run python runs/tabular_mdps/run.py --n 50
+uv run python runs/tabular_mdps/run.py --n 100
+
+uv run python runs/tabular_mdps/run.py --run-all     # all 4 configs
+uv run python runs/tabular_mdps/run.py --n 10 --disable-wandb
+```
+
+*Point Robot Navigation*
+
+```bash
+uv run python runs/point_robot/run.py --env-name point_robot_navigation
+uv run python runs/point_robot/run.py --env-name point_robot_navigation --from-checkpoint <path>
+uv run python runs/point_robot/run.py --env-name point_robot_navigation --disable-wandb
+```
+
+*Ant Target Position (MuJoCo)*
+
+```bash
+uv run python runs/ant/run.py --env-name ant_target_position
+uv run python runs/ant/run.py --env-name ant_target_position --from-checkpoint <path>
+uv run python runs/ant/run.py --env-name ant_target_position --disable-wandb
+```
+
+*Half-Cheetah Target Velocity (MuJoCo)*
+
+```bash
+uv run python runs/cheetah/run.py --env-name cheetah_target_velocity
+uv run python runs/cheetah/run.py --env-name cheetah_target_velocity --from-checkpoint <path>
+uv run python runs/cheetah/run.py --env-name cheetah_target_velocity --disable-wandb
+```
+
+Checkpoints are saved to `results/<env_name>/run-<timestamp>/checkpoints/checkpoint-last.pt` and contain the actor, critic, and optimizer state dicts plus the current iteration number.

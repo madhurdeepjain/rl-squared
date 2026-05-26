@@ -1,9 +1,9 @@
 from typing import Callable
 
 import torch
-import gym
+import gymnasium as gym
 
-from gym.envs.registration import register
+from gymnasium.envs.registration import register, registry
 
 from rl_squared.envs.multiprocessing_vec_env import MultiprocessingVecEnv
 from rl_squared.envs.pytorch_vec_env_wrapper import PyTorchVecEnvWrapper
@@ -50,7 +50,8 @@ def make_env_thunk(
     """
 
     def _thunk():
-        env = gym.make(env_name, **env_configs)
+        register_custom_envs()
+        env = gym.make(env_name, **env_configs).unwrapped
 
         if not callable(getattr(env, "seed", None)):
             raise NotImplementedError(
@@ -111,31 +112,29 @@ def register_custom_envs() -> None:
     Returns:
         None
     """
-    register(
-        id="BernoulliBandit-v1",
-        entry_point="rl_squared.envs.bandits.bernoulli_bandit_env:BernoulliBanditEnv",
-    )
-
-    register(
-        id="TabularMDP-v1", entry_point="rl_squared.envs.mdps.tabular_env:TabularMDPEnv"
-    )
-
-    register(
-        id="PointRobotNavigation-v1",
-        entry_point="rl_squared.envs.point_robot.navigation_env:NavigationEnv",
-    )
-
-    register(
-        id="AntTargetPosition-v1",
-        entry_point="rl_squared.envs.ant.ant_target_position_env:AntTargetPositionEnv",
-    )
-
-    register(
-        id="AntTargetVelocity-v1",
-        entry_point="rl_squared.envs.ant.ant_target_velocity_env:AntTargetVelocityEnv",
-    )
-
-    register(
-        id="CheetahTargetVelocity-v1",
-        entry_point="rl_squared.envs.cheetah.cheetah_target_velocity_env:CheetahTargetVelocityEnv",
-    )
+    _envs = [
+        (
+            "BernoulliBandit-v1",
+            "rl_squared.envs.bandits.bernoulli_bandit_env:BernoulliBanditEnv",
+        ),
+        ("TabularMDP-v1", "rl_squared.envs.mdps.tabular_env:TabularMDPEnv"),
+        (
+            "PointRobotNavigation-v1",
+            "rl_squared.envs.point_robot.navigation_env:NavigationEnv",
+        ),
+        (
+            "AntTargetPosition-v1",
+            "rl_squared.envs.ant.ant_target_position_env:AntTargetPositionEnv",
+        ),
+        (
+            "AntTargetVelocity-v1",
+            "rl_squared.envs.ant.ant_target_velocity_env:AntTargetVelocityEnv",
+        ),
+        (
+            "CheetahTargetVelocity-v1",
+            "rl_squared.envs.cheetah.cheetah_target_velocity_env:CheetahTargetVelocityEnv",
+        ),
+    ]
+    for env_id, entry_point in _envs:
+        if env_id not in registry:
+            register(id=env_id, entry_point=entry_point)

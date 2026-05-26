@@ -77,6 +77,7 @@ class ExperimentConfig:
     # checkpointing
     checkpoint_interval: int = 1
     checkpoint_all: bool = False
+    cuda_device_id: int = 0
     pass
 
     def __post_init__(self):

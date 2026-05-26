@@ -1,10 +1,10 @@
 from typing import Union, Tuple
 
 import numpy as np
-import gym
+import gymnasium as gym
 from copy import deepcopy
 
-from gym.envs.registration import EnvSpec
+from gymnasium.envs.registration import EnvSpec
 
 from rl_squared.envs.base_mujoco_meta_env import BaseMujocoMetaEnv
 from rl_squared.envs.base_meta_env import BaseMetaEnv
@@ -22,6 +22,7 @@ class RLSquaredEnv:
 
         self._action_space = self._wrapped_env.action_space
         self._observation_space = self._make_observation_space()
+        self.render_mode = getattr(self._wrapped_env, "render_mode", None)
 
         # pass these onwards
         self._episode_rewards = 0.0
@@ -186,6 +187,23 @@ class RLSquaredEnv:
           Tuple[gym.Space, gym.Space]
         """
         return self.observation_space, self.action_space
+
+    def close(self) -> None:
+        """
+        Close the environment.
+
+        Returns:
+          None
+        """
+        self._wrapped_env.close()
+
+    def render(self, *args, **kwargs):
+        return self._wrapped_env.render(*args, **kwargs)
+
+    def __getattr__(self, name: str):
+        if name.startswith("_"):
+            raise AttributeError(f"accessing private attribute '{name}' is prohibited")
+        return getattr(self._wrapped_env, name)
 
     def sample_task(self) -> None:
         """

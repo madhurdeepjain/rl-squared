@@ -1,0 +1,22 @@
+[project]
+name = "rl-squared"
+version = "0.1.0"
+description = "RL² meta-learning implementation"
+requires-python = ">=3.10"
+dependencies = [
+    "tqdm",
+    "numpy",
+    "torch",
+    "matplotlib",
+    "gymnasium[mujoco]",
+    "stable-baselines3>=2.0",
+    "wandb",
+    "gitpython",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+exclude = ["experiments", "notes"]
