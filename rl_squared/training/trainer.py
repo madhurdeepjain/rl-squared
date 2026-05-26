@@ -1,6 +1,8 @@
 import os
+import platform
 
 import torch
+import gymnasium
 import wandb
 from tqdm import tqdm
 
@@ -111,6 +113,8 @@ class Trainer:
             ppo.optimizer.load_state_dict(checkpoint["optimizer"])
             pass
 
+        print(self._run_header(current_iteration, enable_wandb))
+
         progress = tqdm(
             range(current_iteration, self.config.policy_iterations),
             desc=self.config.env_name,
@@ -177,6 +181,46 @@ class Trainer:
         # end
         if enable_wandb:
             wandb.finish()
+
+    def _run_header(self, current_iteration: int, enable_wandb: bool) -> str:
+        device = self.device
+        if device.type == "cuda":
+            hw = torch.cuda.get_device_name(device.index or 0)
+            device_str = f"cuda:{device.index or 0}  {hw}"
+        elif device.type == "mps":
+            try:
+                import subprocess
+                chip = subprocess.check_output(
+                    ["sysctl", "-n", "machdep.cpu.brand_string"], stderr=subprocess.DEVNULL
+                ).decode().strip()
+            except Exception:
+                chip = "Apple Silicon"
+            device_str = f"mps  {chip}"
+        else:
+            device_str = f"cpu  {platform.processor() or platform.machine()}"
+
+        c = self.config
+        w = 52
+        sep = "─" * w
+        lines = [
+            sep,
+            f"  env          {c.env_name}",
+            f"  device       {device_str}",
+            f"  processes    {c.num_processes}  (env workers)",
+            f"  iterations   {current_iteration} → {c.policy_iterations}"
+            f"  ·  seed {c.random_seed}",
+            f"  meta-ep      {c.meta_episode_length} steps"
+            f"  ·  {c.meta_episodes_per_epoch} per iter",
+            f"  ppo          epochs {c.ppo_opt_epochs}"
+            f"  ·  minibatches {c.ppo_num_minibatches}"
+            f"  ·  clip {c.ppo_clip_param}",
+            f"  lr           actor {c.actor_lr}  ·  critic {c.critic_lr}",
+            f"  torch        {torch.__version__}"
+            f"  ·  gymnasium {gymnasium.__version__}",
+            f"  wandb        {'on' if enable_wandb else 'off'}",
+            sep,
+        ]
+        return "\n".join(lines)
 
     @property
     def log_dir(self) -> str:
